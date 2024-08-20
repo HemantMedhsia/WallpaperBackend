@@ -13,6 +13,7 @@ export const register = wrapAsync(async () => {
     if (user) {
         throw new errorHandler(400, "Mobile number already exists");
     }
-
-    
+    const newUser = new userModel({ name, mobileNumber, age, country });
+    await newUser.save();
+    res.status(200).json({ message: "User registered successfully" });
 });
