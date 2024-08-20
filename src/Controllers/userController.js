@@ -6,11 +6,13 @@ import wrapAsync from "../Utils/wrapAsync.js";
 export const register = wrapAsync(async () => {
     const { error } = validateUser(req.body);
     if (error) {
-        throw new errorHandler(400,error.details[0].message);
+        throw new errorHandler(400, error.details[0].message);
     }
-    const {name,mobileNumber,age,country} = req.body;
-    const user = userModel.findOne({mobileNumber});
-    if(user){
-        throw 
+    const { name, mobileNumber, age, country } = req.body;
+    const user = userModel.findOne({ mobileNumber });
+    if (user) {
+        throw new errorHandler(400, "Mobile number already exists");
     }
+
+    
 });
