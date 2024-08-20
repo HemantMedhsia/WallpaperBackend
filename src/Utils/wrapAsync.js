@@ -1,8 +1,10 @@
-const wrapAsync = (requestHandler) => {
-    return (req, res, next) => {
-        Promise.resolve(requestHandler(req, res, next)).catch((err) =>
-            next(err)
-        );
+export default (fn) => {
+    return async (req, res, next) => {
+        try {
+            const result = await fn(req, res, next);
+        } catch (error) {
+            next(error);
+        }
     };
 };
 
