@@ -1,10 +1,10 @@
 import userModel from "../Models/userModel.js";
-import { validateUser } from "../Validation/userValidation.js.js";
+import { validateUser } from "../Validation/userValidation.js";
 import { errorHandler } from "../Utils/errorHandler.js";
-import { wrapAsync } from "../Utils/wrapAsync.js";
-import { validateLogin } from "../../Validation/userLoginValidation.js";
+import  wrapAsync  from "../Utils/wrapAsync.js";
+import { validateLogin } from "../Validation/userLoginValidation.js";
 
-export const userRegister = wrapAsync(async (req, resreq,res) => {
+export const userRegister = wrapAsync(async (req,res) => {
     const { error } = validateUser(req.body);
     if (error) {
         throw new errorHandler(400, error.details[0].message);
