@@ -4,6 +4,8 @@ import Joi from 'joi';
 const userValidationSchema = Joi.object({
     name: Joi.string()
         .trim()
+        .min(1) // Ensure at least one character
+        .max(100) // Set a maximum length for name
         .required()
         .messages({
             'string.empty': 'Name is required',
@@ -11,21 +13,27 @@ const userValidationSchema = Joi.object({
         }),
     mobileNumber: Joi.string()
         .trim()
+        .pattern(/^[0-9]+$/) // Ensure mobile number contains only digits
+        .min(10) // Minimum length for mobile number
+        .max(15) // Maximum length for mobile number
         .required()
         .messages({
             'string.empty': 'Mobile number is required',
+            'string.pattern.base': 'Mobile number must contain only digits',
             'any.required': 'Mobile number is required'
         }),
     age: Joi.number()
+        .integer() // Ensure age is an integer
         .min(0)
         .required()
         .messages({
             'number.base': 'Age must be a number',
-            'number.min': 'Age must be a non-negative number',
             'any.required': 'Age is required'
         }),
     country: Joi.string()
         .trim()
+        .min(1) // Ensure at least one character
+        .max(100) // Set a maximum length for country
         .required()
         .messages({
             'string.empty': 'Country is required',
@@ -35,7 +43,7 @@ const userValidationSchema = Joi.object({
 
 // Function to validate user data
 const validateUser = (userData) => {
-    return userValidationSchema.validate(userData);
+    return userValidationSchema.validate(userData, { abortEarly: false }); // Collect all errors
 };
 
 export { validateUser };

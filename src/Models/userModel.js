@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
     mobileNumber: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        unique: true,
     },
     age: {
         type: Number,
@@ -23,6 +24,11 @@ const userSchema = new mongoose.Schema({
     }
 }, {
     timestamps: true // Automatically create createdAt and updatedAt fields
+});
+
+userSchema.pre('save', function (next) {
+    this.name = this.name.toLowerCase();
+    next();
 });
 
 const User = mongoose.model('User', userSchema);
