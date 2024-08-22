@@ -21,10 +21,6 @@ const wallpaperSchema = new mongoose.Schema(
             required: true,
         },
         isPremium: {
-        type: Boolean,
-        default: false
-    },
-    hide: {
             type: Boolean,
             default: false,
         },
@@ -39,5 +35,4 @@ const wallpaperSchema = new mongoose.Schema(
 );
 
 const Wallpaper = mongoose.model("Wallpaper", wallpaperSchema);
-
 export default Wallpaper;
