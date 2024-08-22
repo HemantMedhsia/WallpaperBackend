@@ -22,6 +22,10 @@ const wallpaperSchema = new mongoose.Schema({
     isPremium: {
         type: Boolean,
         default: false
+    },
+    hide: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true // Automatically adds createdAt and updatedAt timestamps
