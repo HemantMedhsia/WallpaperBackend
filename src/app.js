@@ -28,6 +28,10 @@ app.use(express.static("public"));
 
 app.use(cookieParser());
 
+app.use("/",(req,res)=>{
+    res.send("Welcome to Backend");
+});
+
 app.use("/api", userRouter);
 app.use("/api", adminRouter);
 app.use("/api", loginRouter);
