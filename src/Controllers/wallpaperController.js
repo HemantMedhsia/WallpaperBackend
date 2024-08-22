@@ -22,6 +22,7 @@ export const uploadWallpaper = wrapAsync(async (req, res) => {
         category: req.body.category,
         uploadedBy: req.body.adminId, // Assuming adminId is passed in the request body
         isPremium: req.body.isPremium || false,
+        hide: req.body.hide || false,
     });
 
     await wallpaper.save();
