@@ -1,11 +1,14 @@
 import express from 'express';
-import { uploadWallpaper } from '../Controllers/wallpaperController.js';
+import { getWallpaper, getWallpaperById, uploadWallpaper } from '../Controllers/wallpaperController.js';
 import { upload } from '../Middlewares/multerMiddleware.js';
 const router = express.Router();
 
 
 
 router.post("/uploadwallpaper",upload.single("file"),uploadWallpaper);
+router.get("/allwallpaper",getWallpaper);
+router.get("/wallpaper/:id", getWallpaperById);
+
 
 
 

@@ -34,7 +34,6 @@ export const registerAdmin = async (req, res) => {
 
         return res.status(201).json({ msg: 'Admin registered successfully' });
     } catch (err) {
-        console.error(err.message);
         return res.status(500).send('Server error');
     }
 };
@@ -79,7 +78,6 @@ export const updateAdminById = wrapAsync(async (req, res) => {
 
         res.json({ msg: "Admin updated successfully" });
     } catch (err) {
-        console.error(err.message);
         res.status(500).send("Server error");
     }
 });

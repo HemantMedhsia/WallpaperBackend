@@ -4,14 +4,11 @@ import fs from "fs";
 import wrapAsync from "../Utils/wrapAsync.js";
 
 export const uploadWallpaper = wrapAsync(async (req, res) => {
-    if(!req.file) {
+    if (!req.file) {
         return res.status(400).send("no file uploaded");
     }
-    console.log("this is my req.body ",req.body);
-    console.log("this is my req.file ",req.file);
     const filePath = req.file.path; // File path after multer processes it
     const cloudinaryResponse = await uploadOnCloudinary(filePath);
-    
 
     if (!cloudinaryResponse) {
         return res
@@ -34,10 +31,19 @@ export const uploadWallpaper = wrapAsync(async (req, res) => {
     });
 });
 
+export const getWallpaper = wrapAsync(async (req, res) => {
+    const wallpaper = await Wallpaper.find();
+    res.status(200).json(wallpaper);
+});
 
 
+export const getWallpaperById = wrapAsync(async (req, res) => {
+    const { id } = req.params;
 
+    const wallpaper = await Wallpaper.findById(id);
+    if (!wallpaper) {
+        return res.status(404).json({ message: "Wallpaper not found" });
+    }
 
-
-
-
+    res.status(200).json(wallpaper);
+});

@@ -6,6 +6,7 @@ import loginRouter from "./Routes/loginRoute.js";
 import userRouter from "./Routes/userRoute.js";
 import superAdminRouter from "./Routes/superAdminRoute.js";
 import wallpaperRouter from "./Routes/wallpaperRoute.js";
+import razorPayRouter from "./Routes/razorpayRoute.js";
 import errorMiddleware from "./Middlewares/errorMiddleware.js";
 import bodyParser from "body-parser";
 
@@ -32,5 +33,6 @@ app.use("/api", adminRouter);
 app.use("/api", loginRouter);
 app.use("/api",superAdminRouter);
 app.use("/api",wallpaperRouter);
+app.use("/api",razorPayRouter);
 app.use(errorMiddleware);
 export { app };

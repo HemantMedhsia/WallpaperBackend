@@ -27,9 +27,6 @@ export const userLogin = wrapAsync(async (req, res) => {
 
     const { name, mobileNumber } = req.body;
     const normalizedName = name.toLowerCase(); // Normalize the name to match the format in the DB
-    console.log(
-        `Login attempt with name: ${name} and mobile number: ${mobileNumber}`
-    );
 
     // Find user with a case-insensitive search for the name
     const user = await userModel.findOne({
@@ -37,10 +34,7 @@ export const userLogin = wrapAsync(async (req, res) => {
         mobileNumber,
     });
 
-    console.log(`User found: ${user}`);
-
     if (!user) {
-        console.log("User Not found");
         throw new errorHandler(400, "Invalid name or mobile number");
     }
 
