@@ -23,7 +23,7 @@ export const registerSuperAdmin = wrapAsync(async (req, res) => {
         password, // Ensure you hash the password before saving
     });
 
-    // Save the super admin to the database
+    // Save the super admin to the database 
     await newSuperAdmin.save();
 
     return res.status(201).json({ msg: "Superadmin registered successfully" });

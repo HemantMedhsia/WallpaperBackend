@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
             trim: true,
         },
         mobileNumber: {
-            type: String,
+            type: Number,
             required: true,
             trim: true,
             unique: true,
@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false, // Indicates whether the user has premium access
         },
+        payment: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Payment",
+        }]
     },
     {
         timestamps: true, // Automatically create createdAt and updatedAt fields

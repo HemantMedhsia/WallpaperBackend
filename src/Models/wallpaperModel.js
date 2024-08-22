@@ -21,10 +21,6 @@ const wallpaperSchema = new mongoose.Schema(
             required: true,
         },
         isPremium: {
-        type: Boolean,
-        default: false
-    },
-    hide: {
             type: Boolean,
             default: false,
         },

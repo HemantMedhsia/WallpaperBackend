@@ -9,7 +9,7 @@ export const userRegister = wrapAsync(async (req, res) => {
     if (error) {
         throw new errorHandler(400, error.details[0].message);
     }
-    const { name, mobileNumber, age, country } = req.body;
+    const { name, mobileNumber, age, country, isPremium, payment } = req.body;
     const user = await userModel.findOne({ mobileNumber });
     if (user) {
         throw new errorHandler(400, "Mobile number already exists");
@@ -42,7 +42,7 @@ export const userLogin = wrapAsync(async (req, res) => {
 });
 
 export const getAllUser = wrapAsync(async (req, res) => {
-    const users = await userModel.find();
+    const users = await userModel.find().populate("payment");
     return res.status(200).json(users);
 });
 

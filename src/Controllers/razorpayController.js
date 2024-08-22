@@ -1,13 +1,14 @@
 import wrapAsync from "../Utils/wrapAsync.js";
-import Razorpay from 'razorpay';
-import crypto from 'crypto';
-import {Payment} from "../Models/paymentModel.js";
+import Razorpay from "razorpay";
+import crypto from "crypto";
+import { Payment } from "../Models/paymentModel.js";
+import User from "../Models/userModel.js";
 
 export const payment = wrapAsync(async (req, res) => {
     try {
         const razorpay = new Razorpay({
             key_id: process.env.RAZORPAY_KEY_ID,
-            key_secret: process.env.RAZORPAY_KEY_SECRET
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
         });
 
         if (!req.body) {
@@ -28,7 +29,14 @@ export const payment = wrapAsync(async (req, res) => {
 });
 
 export const validate = wrapAsync(async (req, res) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amount } = req.body;
+    console.log(req.params.userId);
+    req.body.amount = req.body.amount / 100;
+    const {
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        amount,
+    } = req.body;
 
     const sha = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
     sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
@@ -38,19 +46,35 @@ export const validate = wrapAsync(async (req, res) => {
         return res.status(400).json({ msg: "Transaction is not legit!" });
     }
 
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+        return res.status(404).send("User not found");
+    }
+
     const result = new Payment(req.body);
-    await result.save();
-    res.json({ msg: "Transaction is legit!", orderId: razorpay_order_id, paymentId: razorpay_payment_id, amount: amount });
+    const paymentData = await result.save();
+    console.log(paymentData._id);
+    user.payment.push(paymentData._id);
+    user.isPremium = true;
+    await user.save().then(() => {
+        res.status(201).json({
+            message: `payment sucessfully added to the user : ${user.name}`,
+        });
+    }).catch((err)=> {
+        console.log(err.message)
+    });
+    res.json({
+        msg: "Transaction is legit!",
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id,
+        amount: amount,
+    });
 });
 
-
-export const getAllTransction = wrapAsync(async(req,res)=>{
+export const getAllTransction = wrapAsync(async (req, res) => {
     const transction = await Payment.find();
     return res.status(200).json(transction);
-
 });
-
-
 
 export const getSingleTransaction = wrapAsync(async (req, res) => {
     const { id } = req.params; // Assuming the transaction ID will be passed as a URL parameter
