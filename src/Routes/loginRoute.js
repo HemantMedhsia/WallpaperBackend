@@ -6,6 +6,6 @@ import { loginAdmin } from '../Controllers/loginController.js';
 const router = express.Router();
 
 // Define routes
-router.post('/login', loginAdmin);
+router.post('/admin/login', loginAdmin);
 
 export default router;

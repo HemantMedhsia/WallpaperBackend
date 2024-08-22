@@ -35,5 +35,4 @@ const wallpaperSchema = new mongoose.Schema(
 );
 
 const Wallpaper = mongoose.model("Wallpaper", wallpaperSchema);
-
 export default Wallpaper;
