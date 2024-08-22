@@ -53,29 +53,26 @@ export const validate = wrapAsync(async (req, res) => {
 
     const result = new Payment(req.body);
     const paymentData = await result.save();
-    console.log(paymentData._id);
     user.payment.push(paymentData._id);
     user.isPremium = true;
 
-    const token = user.generatePremiumToken();
+    const token = user.generatePremiumToken('1m');
 
     await user.save().then(() => {
-        res.status(201).json({
-            message: `payment sucessfully added to the user : ${user.name}`,
-            token:token,
-        });
+        console.log("success");
     }).catch((err)=> {
         console.log(err.message)
     });
     res.json({
-        msg: "Transaction is legit!",
+        msg: `Transaction is legit! and payment sucessfully added to the user : ${user.name}`,
         orderId: razorpay_order_id,
         paymentId: razorpay_payment_id,
         amount: amount,
+        premiumAcessToken: token
     });
 });
 
-export const verifyToken = wrapAsync(async (req,res)=> {
+export const verifyTokenWithId = wrapAsync(async (req,res)=> {
     const user = await User.findById(req.params.userid);
     if (!user) {
         return res.status(404).send("User not found");
@@ -83,6 +80,7 @@ export const verifyToken = wrapAsync(async (req,res)=> {
 
     if(user.isTokenValid()==false) {
         user.premiumAcessToken = "User token not available / Token Expired";
+        user.isPremium = false;
         user.save().then(()=> {
             res.send("Your token Expired / Deleted");
         }).
@@ -90,7 +88,34 @@ export const verifyToken = wrapAsync(async (req,res)=> {
             console.log(err.message);
         })
     }
+    else {
+        res.send("User Premium token is valid !")
+    }
+    
 })
+
+export const verifyTokenwithMobile = wrapAsync(async (req,res)=> {
+    // console.log(req.params.userMobile);
+    const user = await User.findOne({mobileNumber:req.params.userMobile});
+    if (!user) {
+        return res.status(404).send("User not found");
+    }
+
+    if(user.isTokenValid()==false) {
+        user.premiumAcessToken = "User token not available / Token Expired";
+        user.isPremium = false;
+        user.save().then(()=> {
+            res.send("Your token Expired / Deleted");
+        }).
+        catch((err)=> {
+            console.log(err.message);
+        })
+    }
+    else {
+        res.send("User Premium token is valid !")
+    }
+    
+});
     
 export const getAllTransction = wrapAsync(async (req, res) => {
     const transction = await Payment.find();

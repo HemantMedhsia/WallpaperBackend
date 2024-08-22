@@ -47,12 +47,12 @@ userSchema.pre("save", function (next) {
     next();
 });
 
-userSchema.methods.generatePremiumToken = function() {
+userSchema.methods.generatePremiumToken = function(value) {
     // Generate a token, using a secret key and some payload (like user ID)
     const token = jwt.sign(
         { id: this._id, mobileNumber: this.mobileNumber }, 
         process.env.JWT_SECRET, // Replace with your secret key
-        { expiresIn: "1m" } // Token expiration time
+        { expiresIn: `${value}` } // Token expiration time
     );
     
     this.premiumAcessToken = token;

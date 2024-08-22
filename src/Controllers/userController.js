@@ -49,7 +49,7 @@ export const getAllUser = wrapAsync(async (req, res) => {
 
 export const getUser = wrapAsync(async (req, res) => {
     const { id } = req.params; // Extract the user ID from the request parameters
-    const user = await userModel.findById(id); // Find the user by ID in the database
+    const user = await userModel.findById(id).populate("payment"); // Find the user by ID in the database
     
     if (!user) {
         throw new errorHandler(404, "User not found"); // If no user is found, throw a 404 error
