@@ -3,10 +3,7 @@ import { DB_NAME } from "../constant.js";
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(`${process.env.MONGO_URI}/${DB_NAME}`, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        await mongoose.connect(`${process.env.MONGO_URI}/${DB_NAME}`);
         console.log(`\n MongoDB Connected...!!`);
     } catch (err) {
         console.error("MongoDB connection error:", err);
