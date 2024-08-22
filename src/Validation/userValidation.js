@@ -11,11 +11,7 @@ const userValidationSchema = Joi.object({
             'string.empty': 'Name is required',
             'any.required': 'Name is required'
         }),
-    mobileNumber: Joi.string()
-        .trim()
-        .pattern(/^[0-9]+$/) // Ensure mobile number contains only digits
-        .min(10) // Minimum length for mobile number
-        .max(15) // Maximum length for mobile number
+    mobileNumber: Joi.number() // Ensure mobile number contains only digits
         .required()
         .messages({
             'string.empty': 'Mobile number is required',

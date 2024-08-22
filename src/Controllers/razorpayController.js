@@ -29,7 +29,7 @@ export const payment = wrapAsync(async (req, res) => {
 });
 
 export const validate = wrapAsync(async (req, res) => {
-    console.log(req.params.userId);
+    // console.log(req.params.userId);
     req.body.amount = req.body.amount / 100;
     const {
         razorpay_order_id,
