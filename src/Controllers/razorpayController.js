@@ -56,9 +56,13 @@ export const validate = wrapAsync(async (req, res) => {
     console.log(paymentData._id);
     user.payment.push(paymentData._id);
     user.isPremium = true;
+
+    const token = user.generatePremiumToken();
+
     await user.save().then(() => {
         res.status(201).json({
             message: `payment sucessfully added to the user : ${user.name}`,
+            token:token,
         });
     }).catch((err)=> {
         console.log(err.message)
@@ -71,6 +75,23 @@ export const validate = wrapAsync(async (req, res) => {
     });
 });
 
+export const verifyToken = wrapAsync(async (req,res)=> {
+    const user = await User.findById(req.params.userid);
+    if (!user) {
+        return res.status(404).send("User not found");
+    }
+
+    if(user.isTokenValid()==false) {
+        user.premiumAcessToken = "User token not available / Token Expired";
+        user.save().then(()=> {
+            res.send("Your token Expired / Deleted");
+        }).
+        catch((err)=> {
+            console.log(err.message);
+        })
+    }
+})
+    
 export const getAllTransction = wrapAsync(async (req, res) => {
     const transction = await Payment.find();
     return res.status(200).json(transction);
