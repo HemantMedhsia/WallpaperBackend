@@ -28,7 +28,7 @@ app.use(express.static("public"));
 
 app.use(cookieParser());
 
-app.use("/",(req,res)=>{
+app.get("/",(req,res)=>{
     res.send("Welcome to Backend");
 });
 
