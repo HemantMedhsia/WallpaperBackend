@@ -2,18 +2,18 @@ import Wallpaper from "../Models/wallpaperModel.js";
 import { uploadOnCloudinary } from "../Utils/cloudinary.js";
 import fs from "fs";
 import wrapAsync from "../Utils/wrapAsync.js";
+import { errorHandler } from "../Utils/errorHandler.js";
+import { ApiResponse } from "../Utils/responseHandler.js";
 
 export const uploadWallpaper = wrapAsync(async (req, res) => {
     if (!req.file) {
-        return res.status(400).send("no file uploaded");
+        throw new errorHandler(400, "No file uploaded");
     }
     const filePath = req.file.path; // File path after multer processes it
     const cloudinaryResponse = await uploadOnCloudinary(filePath);
 
     if (!cloudinaryResponse) {
-        return res
-            .status(500)
-            .json({ message: "Failed to upload image to Cloudinary" });
+        throw new errorHandler(500, "Failed to upload image to Cloudinary");
     }
 
     const wallpaper = new Wallpaper({
@@ -25,26 +25,21 @@ export const uploadWallpaper = wrapAsync(async (req, res) => {
         hide: req.body.hide || false,
     });
 
-    await wallpaper.save();
-    res.status(201).json({
-        message: "Wallpaper uploaded successfully",
-        wallpaper,
-    });
+   const saveWallpaper = await wallpaper.save();
+    res.status(201).json(new ApiResponse(201, saveWallpaper, "Wallpaper uploaded successfully"));
 });
 
 export const getWallpaper = wrapAsync(async (req, res) => {
     const wallpaper = await Wallpaper.find();
-    res.status(200).json(wallpaper);
+    res.status(200).json(new ApiResponse(200, wallpaper, "All wallpapers fetched successfully"));
 });
-
 
 export const getWallpaperById = wrapAsync(async (req, res) => {
     const { id } = req.params;
 
     const wallpaper = await Wallpaper.findById(id);
     if (!wallpaper) {
-        return res.status(404).json({ message: "Wallpaper not found" });
+        throw new errorHandler(404, "Wallpaper not found");
     }
-
-    res.status(200).json(wallpaper);
+    res.status(200).json(new ApiResponse(200, wallpaper, "Wallpaper fetched successfully"));
 });

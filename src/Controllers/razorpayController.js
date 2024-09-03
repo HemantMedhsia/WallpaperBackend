@@ -3,6 +3,8 @@ import Razorpay from "razorpay";
 import crypto from "crypto";
 import { Payment } from "../Models/paymentModel.js";
 import User from "../Models/userModel.js";
+import { errorHandler } from "../Utils/errorHandler.js";
+import { ApiResponse } from "../Utils/responseHandler.js";
 
 export const payment = wrapAsync(async (req, res) => {
     try {
@@ -12,19 +14,20 @@ export const payment = wrapAsync(async (req, res) => {
         });
 
         if (!req.body) {
-            return res.status(400).send("Bad Request");
+            throw new errorHandler(400, "Bad Request");
         }
 
         const options = req.body;
         const order = await razorpay.orders.create(options);
 
         if (!order) {
-            return res.status(400).send("Bad Request");
+            throw new errorHandler(400, "Bad Request");
         }
-
-        res.json(order);
+        return res
+            .status(200)
+            .json(new ApiResponse(200, order, "Order created successfully"));
     } catch (error) {
-        res.status(500).send(error);
+        throw new errorHandler(500, error.message);
     }
 });
 
@@ -43,12 +46,12 @@ export const validate = wrapAsync(async (req, res) => {
     const digest = sha.digest("hex");
 
     if (digest !== razorpay_signature) {
-        return res.status(400).json({ msg: "Transaction is not legit!" });
+        throw new errorHandler(400, "Transaction is not legit!");
     }
 
     const user = await User.findById(req.params.userId);
     if (!user) {
-        return res.status(404).send("User not found");
+        throw new errorHandler(404, "User not found");
     }
 
     const result = new Payment(req.body);
@@ -56,81 +59,116 @@ export const validate = wrapAsync(async (req, res) => {
     user.payment.push(paymentData._id);
     user.isPremium = true;
 
-    const token = user.generatePremiumToken('1m');
+    const token = user.generatePremiumToken("1m");
 
-    await user.save().then(() => {
-        console.log("success");
-    }).catch((err)=> {
-        console.log(err.message)
-    });
-    res.json({
-        msg: `Transaction is legit! and payment sucessfully added to the user : ${user.name}`,
-        orderId: razorpay_order_id,
-        paymentId: razorpay_payment_id,
-        amount: amount,
-        premiumAcessToken: token
-    });
+    await user
+        .save()
+        .then(() => {
+            console.log("success");
+        })
+        .catch((err) => {
+            console.log(err.message);
+            throw new errorHandler(500, err.message);
+        });
+    // res.json({
+    //     msg: `Transaction is legit! and payment sucessfully added to the user : ${user.name}`,
+    //     orderId: razorpay_order_id,
+    //     paymentId: razorpay_payment_id,
+    //     amount: amount,
+    //     premiumAcessToken: token,
+    // });
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                user,
+                orderId: razorpay_order_id,
+                paymentId: razorpay_payment_id,
+                amount,
+                premiumAccessToken: token,
+            },
+            "Payment successful"
+        )
+    );
 });
 
-export const verifyTokenWithId = wrapAsync(async (req,res)=> {
+export const verifyTokenWithId = wrapAsync(async (req, res) => {
     const user = await User.findById(req.params.userid);
     if (!user) {
-        return res.status(404).send("User not found");
+        throw new errorHandler(404, "User not found");
     }
 
-    if(user.isTokenValid()==false) {
+    if (user.isTokenValid() == false) {
         user.premiumAcessToken = "User token not available / Token Expired";
         user.isPremium = false;
-        user.save().then(()=> {
-            res.send("Your token Expired / Deleted");
-        }).
-        catch((err)=> {
-            console.log(err.message);
-        })
+        user.save()
+            .then(() => {
+                // res.send("Your token Expired / Deleted");
+                throw new errorHandler(400, "Your token Expired / Deleted");
+            })
+            .catch((err) => {
+                console.log(err.message);
+            });
+    } else {
+        return res
+            .status(200)
+            .json(new ApiResponse(200, user, "User Premium token is valid !"));
     }
-    else {
-        res.send("User Premium token is valid !")
-    }
-    
-})
-
-export const verifyTokenwithMobile = wrapAsync(async (req,res)=> {
-    // console.log(req.params.userMobile);
-    const user = await User.findOne({mobileNumber:req.params.userMobile});
-    if (!user) {
-        return res.status(404).send("User not found");
-    }
-
-    if(user.isTokenValid()==false) {
-        user.premiumAcessToken = "User token not available / Token Expired";
-        user.isPremium = false;
-        user.save().then(()=> {
-            res.send("Your token Expired / Deleted");
-        }).
-        catch((err)=> {
-            console.log(err.message);
-        })
-    }
-    else {
-        res.send("User Premium token is valid !")
-    }
-    
 });
-    
+
+export const verifyTokenwithMobile = wrapAsync(async (req, res) => {
+    // console.log(req.params.userMobile);
+    const user = await User.findOne({ mobileNumber: req.params.userMobile });
+    if (!user) {
+        throw new errorHandler(404, "User not found");
+    }
+
+    if (user.isTokenValid() == false) {
+        user.premiumAcessToken = "User token not available / Token Expired";
+        user.isPremium = false;
+        user.save()
+            .then(() => {
+                // res.send("Your token Expired / Deleted");
+                throw new errorHandler(400, "Your token Expired / Deleted");
+            })
+            .catch((err) => {
+                console.log(err.message);
+            });
+    } else {
+        return res
+            .status(200)
+            .json(new ApiResponse(200, user, "User Premium token is valid !"));
+    }
+});
+
 export const getAllTransction = wrapAsync(async (req, res) => {
     const transction = await Payment.find();
-    return res.status(200).json(transction);
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                transction,
+                "All transactions fetched successfully"
+            )
+        );
 });
 
 export const getSingleTransaction = wrapAsync(async (req, res) => {
-    const { id } = req.params; // Assuming the transaction ID will be passed as a URL parameter
+    const { id } = req.params;
 
-    // Find the transaction by ID
     const transaction = await Payment.findById(id);
 
     if (!transaction) {
-        return res.status(404).json({ msg: "Transaction not found" });
+        throw new errorHandler(404, "Transaction not found");
     }
-
-    return res.status(200).json(transaction);
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                transaction,
+                "Transaction fetched successfully"
+            )
+        );
 });

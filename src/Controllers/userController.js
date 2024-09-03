@@ -3,6 +3,7 @@ import { validateUser } from "../Validation/userValidation.js";
 import { errorHandler } from "../Utils/errorHandler.js";
 import wrapAsync from "../Utils/wrapAsync.js";
 import { validateLogin } from "../Validation/userLoginValidation.js";
+import { ApiResponse } from "../Utils/responseHandler.js";
 
 export const userRegister = wrapAsync(async (req, res) => {
     const { error } = validateUser(req.body);
@@ -15,8 +16,10 @@ export const userRegister = wrapAsync(async (req, res) => {
         throw new errorHandler(400, "Mobile number already exists");
     }
     const newUser = new userModel({ name, mobileNumber, age, country });
-    await newUser.save();
-    res.status(201).json({ message: "User registered successfully" });
+    const saveUser = await newUser.save();
+    return res
+        .status(201)
+        .json(new ApiResponse(201, saveUser, "User registered successfully"));
 });
 
 export const userLogin = wrapAsync(async (req, res) => {
@@ -38,23 +41,24 @@ export const userLogin = wrapAsync(async (req, res) => {
         throw new errorHandler(400, "Invalid name or mobile number");
     }
 
-    res.status(200).json({ message: "Login successful" });
+    return res.status(200).json(new ApiResponse(200, user, "Login successful"));
 });
 
 export const getAllUser = wrapAsync(async (req, res) => {
     const users = await userModel.find().populate("payment");
-    return res.status(200).json(users);
+    return res
+        .status(200)
+        .json(new ApiResponse(200, users, "All users fetched successfully"));
 });
-
 
 export const getUser = wrapAsync(async (req, res) => {
-    const { id } = req.params; // Extract the user ID from the request parameters
-    const user = await userModel.findById(id).populate("payment"); // Find the user by ID in the database
-    
+    const { id } = req.params;
+    const user = await userModel.findById(id).populate("payment");
+
     if (!user) {
-        throw new errorHandler(404, "User not found"); // If no user is found, throw a 404 error
+        throw new errorHandler(404, "User not found");
     }
-
-    res.status(200).json(user); // Return the user details in the response
+    return res
+        .status(200)
+        .json(new ApiResponse(200, user, "User fetched successfully"));
 });
-

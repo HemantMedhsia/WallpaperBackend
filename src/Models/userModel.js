@@ -28,14 +28,16 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false, // Indicates whether the user has premium access
         },
-        payment: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Payment",
-        }],
+        payment: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Payment",
+            },
+        ],
         premiumAcessToken: {
             type: String,
-            default: "User token not available / Token Expired"
-        }
+            default: "User token not available / Token Expired",
+        },
     },
     {
         timestamps: true, // Automatically create createdAt and updatedAt fields
@@ -47,19 +49,19 @@ userSchema.pre("save", function (next) {
     next();
 });
 
-userSchema.methods.generatePremiumToken = function(value) {
+userSchema.methods.generatePremiumToken = function (value) {
     // Generate a token, using a secret key and some payload (like user ID)
     const token = jwt.sign(
-        { id: this._id, mobileNumber: this.mobileNumber }, 
+        { id: this._id, mobileNumber: this.mobileNumber },
         process.env.JWT_SECRET, // Replace with your secret key
         { expiresIn: `${value}` } // Token expiration time
     );
-    
+
     this.premiumAcessToken = token;
     return token;
 };
 
-userSchema.methods.isTokenValid = function() {
+userSchema.methods.isTokenValid = function () {
     try {
         jwt.verify(this.premiumAcessToken, process.env.JWT_SECRET);
         return true; // Token is valid
