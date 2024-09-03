@@ -92,47 +92,23 @@ export const validate = wrapAsync(async (req, res) => {
     );
 });
 
-// export const verifyTokenWithId = wrapAsync(async (req, res) => {
-//     const user = await User.findById(req.params.userid);
-//     if (!user) {
-//         throw new errorHandler(404, "User not found");
-//     }
-
-//     if (user.isTokenValid() == false) {
-//         user.premiumAcessToken = "User token not available / Token Expired";
-//         user.isPremium = false;
-//         user.save()
-//             .then(() => {
-//                 // res.send("Your token Expired / Deleted");
-//                 throw new errorHandler(400, "Your token Expired / Deleted");
-//             })
-//             .catch((err) => {
-//                 console.log(err.message);
-//             });
-//     } else {
-//         return res
-//             .status(200)
-//             .json(new ApiResponse(200, user, "User Premium token is valid !"));
-//     }
-// });
-
 export const verifyTokenWithId = wrapAsync(async (req, res) => {
     const user = await User.findById(req.params.userid);
     if (!user) {
         throw new errorHandler(404, "User not found");
     }
 
-    if (!user.isTokenValid()) {
+    if (user.isTokenValid() == false) {
         user.premiumAcessToken = "User token not available / Token Expired";
         user.isPremium = false;
-
-        try {
-            await user.save();
-            throw new errorHandler(400, "Your token Expired / Deleted");
-        } catch (err) {
-            console.log(err.message);
-            throw new errorHandler(500, "Internal Server Error");
-        }
+        user.save()
+            .then(() => {
+              return  res.send("Your token Expired / Deleted");
+                // throw new errorHandler(400, "Your token Expired / Deleted");
+            })
+            .catch((err) => {
+                console.log(err.message);
+            });
     } else {
         return res
             .status(200)
