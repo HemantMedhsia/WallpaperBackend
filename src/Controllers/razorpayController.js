@@ -103,7 +103,7 @@ export const verifyTokenWithId = wrapAsync(async (req, res) => {
         user.isPremium = false;
         user.save()
             .then(() => {
-              return  res.send("Your token Expired / Deleted");
+                return res.send("Your token Expired / Deleted");
                 // throw new errorHandler(400, "Your token Expired / Deleted");
             })
             .catch((err) => {
@@ -116,28 +116,57 @@ export const verifyTokenWithId = wrapAsync(async (req, res) => {
     }
 });
 
-export const verifyTokenwithMobile = wrapAsync(async (req, res) => {
-    // console.log(req.params.userMobile);
-    const user = await User.findOne({ mobileNumber: req.params.userMobile });
-    if (!user) {
-        throw new errorHandler(404, "User not found");
-    }
+// export const verifyTokenwithMobile = wrapAsync(async (req, res) => {
+//     // console.log(req.params.userMobile);
+//     const user = await User.findOne({ mobileNumber: req.params.userMobile });
+//     if (!user) {
+//         throw new errorHandler(404, "User not found");
+//     }
 
-    if (user.isTokenValid() == false) {
-        user.premiumAcessToken = "User token not available / Token Expired";
-        user.isPremium = false;
-        user.save()
-            .then(() => {
-                // res.send("Your token Expired / Deleted");
-                throw new errorHandler(400, "Your token Expired / Deleted");
-            })
-            .catch((err) => {
-                console.log(err.message);
-            });
-    } else {
+//     if (user.isTokenValid() == false) {
+//         user.premiumAcessToken = "User token not available / Token Expired";
+//         user.isPremium = false;
+//         user.save()
+//             .then(() => {
+//                 // res.send("Your token Expired / Deleted");
+//                 throw new errorHandler(400, "Your token Expired / Deleted");
+//             })
+//             .catch((err) => {
+//                 console.log(err.message);
+//             });
+//     } else {
+//         return res
+//             .status(200)
+//             .json(new ApiResponse(200, user, "User Premium token is valid !"));
+//     }
+// });
+export const verifyTokenwithMobile = wrapAsync(async (req, res) => {
+    try {
+        const user = await User.findOne({
+            mobileNumber: req.params.userMobile,
+        });
+        if (!user) {
+            throw new errorHandler(404, "User not found");
+        }
+
+        if (!user.isTokenValid()) {
+            user.premiumAcessToken = "User token not available / Token Expired";
+            user.isPremium = false;
+            await user.save();
+
+            return res
+                .status(400)
+                .json(
+                    new ApiResponse(400, null, "Your token Expired / Deleted")
+                );
+        }
+
         return res
             .status(200)
-            .json(new ApiResponse(200, user, "User Premium token is valid !"));
+            .json(new ApiResponse(200, user, "User Premium token is valid!"));
+    } catch (err) {
+        console.error(err.message);
+        throw new errorHandler(500, "Internal Server Error");
     }
 });
 
