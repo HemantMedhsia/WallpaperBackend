@@ -43,3 +43,39 @@ export const getWallpaperById = wrapAsync(async (req, res) => {
     }
     res.status(200).json(new ApiResponse(200, wallpaper, "Wallpaper fetched successfully"));
 });
+
+export const deleteWallpaper = wrapAsync(async (req, res) => {
+    const { id } = req.params;
+
+    const wallpaper = await Wallpaper.findById(id);
+    if (!wallpaper) {
+        throw new errorHandler(404, "Wallpaper not found");
+    }
+
+    const deleteWallpaper = await Wallpaper.findByIdAndDelete(id);
+    if (!deleteWallpaper) {
+        throw new errorHandler(500, "Failed to delete wallpaper");
+    }
+    
+    const publicId = wallpaper.url.split("/").pop().split(".")[0];
+    await cloudinary.uploader.destroy(publicId);
+
+    res.status(200).json(new ApiResponse(200, {}, "Wallpaper deleted successfully"));
+});
+
+
+// export const updateWallpaper = wrapAsync(async (req, res) => {
+//     const { id } = req.params;
+
+//     const wallpaper = await Wallpaper.findById(id);
+//     if (!wallpaper) {
+//         throw new errorHandler(404, "Wallpaper not found");
+//     }
+
+//     const updateWallpaper = await Wallpaper.findByIdAndUpdate(id, req.body, { new: true });
+//     if (!updateWallpaper) {
+//         throw new errorHandler(500, "Failed to update wallpaper");
+//     }
+
+//     res.status(200).json(new ApiResponse(200, updateWallpaper, "Wallpaper updated successfully"));
+// });
