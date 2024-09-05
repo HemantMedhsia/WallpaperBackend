@@ -64,7 +64,7 @@ export const deleteWallpaper = wrapAsync(async (req, res) => {
         throw new errorHandler(500, "Failed to delete wallpaper");
     }
 
-    const publicId = wallpaper.url.split("/").slice(-2).join("/");
+    const publicId = wallpaper.url.split("/").slice(-2).join("/").split(".")[0];
 
     try {
         await cloudinary.uploader.destroy(publicId);
