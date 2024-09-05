@@ -1,5 +1,6 @@
 import Wallpaper from "../Models/wallpaperModel.js";
 import { uploadOnCloudinary } from "../Utils/cloudinary.js";
+import cloudinary from "cloudinary";
 import fs from "fs";
 import wrapAsync from "../Utils/wrapAsync.js";
 import { errorHandler } from "../Utils/errorHandler.js";
@@ -25,13 +26,17 @@ export const uploadWallpaper = wrapAsync(async (req, res) => {
         hide: req.body.hide || false,
     });
 
-   const saveWallpaper = await wallpaper.save();
-    res.status(201).json(new ApiResponse(201, saveWallpaper, "Wallpaper uploaded successfully"));
+    const saveWallpaper = await wallpaper.save();
+    res.status(201).json(
+        new ApiResponse(201, saveWallpaper, "Wallpaper uploaded successfully")
+    );
 });
 
 export const getWallpaper = wrapAsync(async (req, res) => {
     const wallpaper = await Wallpaper.find();
-    res.status(200).json(new ApiResponse(200, wallpaper, "All wallpapers fetched successfully"));
+    res.status(200).json(
+        new ApiResponse(200, wallpaper, "All wallpapers fetched successfully")
+    );
 });
 
 export const getWallpaperById = wrapAsync(async (req, res) => {
@@ -41,7 +46,9 @@ export const getWallpaperById = wrapAsync(async (req, res) => {
     if (!wallpaper) {
         throw new errorHandler(404, "Wallpaper not found");
     }
-    res.status(200).json(new ApiResponse(200, wallpaper, "Wallpaper fetched successfully"));
+    res.status(200).json(
+        new ApiResponse(200, wallpaper, "Wallpaper fetched successfully")
+    );
 });
 
 export const deleteWallpaper = wrapAsync(async (req, res) => {
@@ -56,26 +63,16 @@ export const deleteWallpaper = wrapAsync(async (req, res) => {
     if (!deleteWallpaper) {
         throw new errorHandler(500, "Failed to delete wallpaper");
     }
-    
+
     const publicId = wallpaper.url.split("/").pop().split(".")[0];
-    await cloudinary.uploader.destroy(publicId);
 
-    res.status(200).json(new ApiResponse(200, {}, "Wallpaper deleted successfully"));
+    try {
+        await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+        console.error("Cloudinary deletion error:", error);
+    }
+
+    res.status(200).json(
+        new ApiResponse(200, deleteWallpaper, "Wallpaper deleted successfully")
+    );
 });
-
-
-// export const updateWallpaper = wrapAsync(async (req, res) => {
-//     const { id } = req.params;
-
-//     const wallpaper = await Wallpaper.findById(id);
-//     if (!wallpaper) {
-//         throw new errorHandler(404, "Wallpaper not found");
-//     }
-
-//     const updateWallpaper = await Wallpaper.findByIdAndUpdate(id, req.body, { new: true });
-//     if (!updateWallpaper) {
-//         throw new errorHandler(500, "Failed to update wallpaper");
-//     }
-
-//     res.status(200).json(new ApiResponse(200, updateWallpaper, "Wallpaper updated successfully"));
-// });
