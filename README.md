@@ -60,29 +60,3 @@ The API endpoints are documented in the [API Documentation](https://example.com/
 ## Contributing
 
 Contributions are welcome! Please submit a pull request with your changes and a brief description of what you've added.
-
-## License
-
-This project is licensed under the MIT License.
-
-## Acknowledgments
-
-Special thanks to the developers of the technologies used in this project.
-
-`````js path="package.json"
-console.log("Dependencies:");
-console.log(require("./package.json").dependencies);
-`````
-
-## Contact
-
-For any questions or issues, please contact [Hemant Medhsia](https://github.com/HemantMedhsia).
-
-`````markdown
-## Roadmap
-
-* Implement additional features for user management
-* Integrate with other payment gateways
-* Improve performance and scalability
-`````
-```
