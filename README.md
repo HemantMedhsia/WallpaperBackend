@@ -39,13 +39,18 @@ The Wallpaper Backend is a robust server-side application designed to manage wal
 
 . Clone the repository: `git clone https://github.com/HemantMedhsia/WallpaperBackend.git`
 . Install dependencies: `npm install`
-. Create a `.env` file and add the following variables:
-	* `MONGO_URI`: MongoDB connection string
-	* `CLOUD_NAME`: Cloudinary cloud name
-	* `CLOUD_API_KEY`: Cloudinary API key
-	* `CLOUD_API_SECRET`: Cloudinary API secret
-	* `RAZORPAY_KEY_ID`: Razorpay key ID
-	* `RAZORPAY_KEY_SECRET`: Razorpay key secret
+. Create .env file and add the given points inside env
+``````bash
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+CLOUD_NAME=your_cloudinary_name
+CLOUD_API_KEY=your_cloudinary_api_key
+CLOUD_API_SECRET=your_cloudinary_api_secret
+RAZORPAY_KEY_ID=your_razorpay_key_id
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+JWT_SECRET=your_jwt_secret_key
+
+``````
 . Start the server: `npm run dev`
 
 ### API Endpoints
